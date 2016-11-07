@@ -57,9 +57,11 @@ Trying to use the module before the `ready` event will throw an error.
 
 The `net` module has the following methods:
 
-### `net.request(options)`
+### `net.request(options[, callback])`
 
 * `options` (Object | String) - The `ClientRequest` constructor options.
+* `callback` (Function) (optional) - A one time listener for the `response`
+event.
 
 Returns `ClientRequest`
 
@@ -75,7 +77,7 @@ specified protocol scheme in the `options` object.
 `ClientRequest` implements the [Writable Stream](https://nodejs.org/api/stream.html#stream_writable_streams)
 interface and is therefore an [EventEmitter](https://nodejs.org/api/events.html#events_class_eventemitter).
 
-### `new ClientRequest(options)`
+### `new ClientRequest(options[, callback])`
 
 * `options` (Object | String) - If `options` is a String, it is interpreted as
   the request URL. If it is an object, it is expected to fully specify an HTTP
@@ -97,6 +99,9 @@ interface and is therefore an [EventEmitter](https://nodejs.org/api/events.html#
   * `hostname` String (optional) - The server host name.
   * `port` Integer (optional) - The server's listening port number.
   * `path` String (optional) - The path part of the request URL.
+  * `headers` Object (optional) - A map specifying extra HTTP header name/value.
+* `callback` (Function) (optional) - A one time listener for the `response`
+event.
 
 `options` properties such as `protocol`, `host`, `hostname`, `port` and `path`
 strictly follow the Node.js model as described in the
