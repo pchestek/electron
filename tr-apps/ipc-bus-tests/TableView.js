@@ -83,11 +83,12 @@ onCellClicked = function(emitter, receiver) {
     let backgroundColor = document.createAttribute("style");
     backgroundColor.value = "color:white;background-color:red";
     sourceCell.setAttributeNode(backgroundColor);
-    sourceCell.innerHTML = "Testing..."; 
+    let date = new Date();
+    sourceCell.innerHTML = date.getTime();
     // topic is the receiver, message is the emitter
     setTimeout(function() {
         ipcBus.send(receiver, emitter);
-    }, 500);
+    }, 5);
 };
 
 doSubscribe = function(topic) {
@@ -102,5 +103,6 @@ onIPCMessageReceived = function(topic, message) {
     let backgroundColor = document.createAttribute("style");
     backgroundColor.value = "color:white;background-color:green";
     targetCell.setAttributeNode(backgroundColor);
-    targetCell.innerHTML = "Success"; 
+    let date = new Date();
+    targetCell.innerHTML = date.getTime() - targetCell.innerHTML;
 };
