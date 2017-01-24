@@ -9,22 +9,28 @@
 #include "atom_natives.h"  // NOLINT: This file is generated with js2c
 
 #include "atom/common/api/api_messages.h"
+#include "atom/common/api/atom_bindings.h"
 #include "atom/common/native_mate_converters/string16_converter.h"
 #include "atom/common/native_mate_converters/value_converter.h"
+#include "atom/common/node_bindings.h"
 #include "atom/common/options_switches.h"
 #include "atom/renderer/api/atom_api_renderer_ipc.h"
 #include "atom/renderer/atom_render_view_observer.h"
+#include "atom/renderer/preferences_manager.h"
 #include "base/command_line.h"
 #include "content/public/renderer/render_frame.h"
 #include "content/public/renderer/render_frame_observer.h"
 #include "content/public/renderer/render_view.h"
 #include "content/public/renderer/render_view_observer.h"
 #include "ipc/ipc_message_macros.h"
+#include "native_mate/dictionary.h"
 #include "third_party/WebKit/public/web/WebFrame.h"
 #include "third_party/WebKit/public/web/WebKit.h"
 #include "third_party/WebKit/public/web/WebLocalFrame.h"
 #include "third_party/WebKit/public/web/WebScriptSource.h"
 #include "third_party/WebKit/public/web/WebView.h"
+
+#include "atom/common/node_includes.h"
 
 namespace atom {
 
@@ -110,10 +116,30 @@ class AtomSandboxedRenderViewObserver : public AtomRenderViewObserver {
   DISALLOW_COPY_AND_ASSIGN(AtomSandboxedRenderViewObserver);
 };
 
+v8::Local<v8::Value> GetRenderProcessPreferences(
+    const PreferencesManager* preferences_manager, v8::Isolate* isolate) {
+  if (preferences_manager->preferences())
+    return mate::ConvertToV8(isolate, *preferences_manager->preferences());
+  else
+    return v8::Null(isolate);
+}
+
+void AddRenderBindings(v8::Isolate* isolate,
+                       v8::Local<v8::Object> process,
+                       const PreferencesManager* preferences_manager) {
+  mate::Dictionary dict(isolate, process);
+  dict.SetMethod(
+      "getRenderProcessPreferences",
+      base::Bind(GetRenderProcessPreferences, preferences_manager));
+}
+
 }  // namespace
 
 
-AtomSandboxedRendererClient::AtomSandboxedRendererClient() {
+AtomSandboxedRendererClient::AtomSandboxedRendererClient()
+  : node_bindings_(NodeBindings::Create(false)),
+    atom_bindings_(new AtomBindings) {
+  // preferences_manager_.reset(new PreferencesManager);
 }
 
 AtomSandboxedRendererClient::~AtomSandboxedRendererClient() {
@@ -167,6 +193,34 @@ void AtomSandboxedRendererClient::DidCreateScriptContext(
   auto binding_key = mate::ConvertToV8(isolate, kBindingKey)->ToString();
   auto private_binding_key = v8::Private::ForApi(isolate, binding_key);
   context->Global()->SetPrivate(context, private_binding_key, binding);
+
+  // Whether the node binding has been initialized.
+  bool first_time = node_bindings_->uv_env() == nullptr;
+
+  // Prepare the node bindings.
+  if (first_time) {
+    node_bindings_->Initialize();
+    node_bindings_->PrepareMessageLoop();
+  }
+
+  // Setup node environment for each window.
+  node::Environment* env = node_bindings_->CreateEnvironment(context);
+
+  // // Add Electron extended APIs.
+  // atom_bindings_->BindTo(env->isolate(), env->process_object());
+  // AddRenderBindings(env->isolate(), env->process_object(),
+  //                   preferences_manager_.get());
+
+  // // Load everything.
+  // node_bindings_->LoadEnvironment(env);
+
+  if (first_time) {
+    // Make uv loop being wrapped by window context.
+    // node_bindings_->set_uv_env(env);
+
+    // Give the node loop a run to make sure everything is ready.
+    // node_bindings_->RunMessageLoop();
+  }
 }
 
 void AtomSandboxedRendererClient::WillReleaseScriptContext(

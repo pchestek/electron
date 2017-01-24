@@ -12,6 +12,10 @@
 
 namespace atom {
 
+class AtomBindings;
+class PreferencesManager;
+class NodeBindings;
+
 class AtomSandboxedRendererClient : public content::ContentRendererClient {
  public:
   AtomSandboxedRendererClient();
@@ -29,6 +33,10 @@ class AtomSandboxedRendererClient : public content::ContentRendererClient {
   void RenderViewCreated(content::RenderView*) override;
 
  private:
+  std::unique_ptr<NodeBindings> node_bindings_;
+  std::unique_ptr<AtomBindings> atom_bindings_;
+  std::unique_ptr<PreferencesManager> preferences_manager_;
+
   DISALLOW_COPY_AND_ASSIGN(AtomSandboxedRendererClient);
 };
 
