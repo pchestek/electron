@@ -1,0 +1,14 @@
+{
+  "name": "crash-upload-test",
+  "version": "0.0.1",
+  "description": "Test App for TRUST crash upload",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js"
+  },
+  "author": "Thomas Moutel",
+  "homepage": "http://www.thomsonreuters.com",
+  "devDependencies": {
+    "electron": "^1.4.1"
+  }
+}

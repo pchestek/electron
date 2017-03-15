@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8" />
+        <title>TRUST crash upload test app</title>
+    </head>
+    <body>
+        <script>
+            function crashMe()
+            {
+                console.log('crashing...');
+                process.crash();
+                console.log('crashed!'); // you should never be able to see that in the console
+            }
+        </script>
+        <a href="javascript:crashMe();">Crash me!</a><br/>
+    </body>
+</html>
