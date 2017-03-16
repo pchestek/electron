@@ -23,7 +23,7 @@ let mainWindow
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600})
+  mainWindow = new BrowserWindow({width: 800, height: 600, webPreferences: { preload: path.join(__dirname, 'preload.js')} })
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -65,10 +65,3 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-const {crashReporter} = require('electron')
-crashReporter.start({
-  productName: 'TRUST crash upload test app',
-  companyName: 'Thomson Reuters',
-  submitURL: 'http://trustdev.thomsonreuters.com:8080/CrashesService.svc/REST/SubmitNativeCrash',
-  autoSubmit: true
-})
